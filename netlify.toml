@@ -1,2 +1,7 @@
-[build]
-  functions = "netlify/functions"
+touch netlify.toml
+
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/urlRedirect/:splat"
+  status = 301
+  force = true
