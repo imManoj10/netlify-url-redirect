@@ -1,5 +1,7 @@
-touch .gitignore
 node_modules/
 netlify/
 .env
 
+
+# Local Netlify folder
+.netlify
