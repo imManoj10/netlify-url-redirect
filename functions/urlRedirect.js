@@ -2,16 +2,18 @@ exports.handler = async (event) => {
     const path = event.path.replace("/.netlify/functions/urlRedirect", "");
     const parts = path.split("/").filter(Boolean);
 
+    // KV Mapping
+    const KV = { 't': 'tally.so', 'n': 'notion.so' };
+
     // Ensure "t" or "n" is present
-    let typeIndex = parts.findIndex(p => p === "t" || p === "n");
-    if (typeIndex === -1 || parts.length <= typeIndex + 3) {
+    if (parts.length < 4 || !(parts[0] in KV)) {
         return {
             statusCode: 400,
             body: JSON.stringify({ error: "Invalid URL format. Use /t/YYYY-MM-DD/formID/NID or /n/YYYY-MM-DD/formID/NID" })
         };
     }
 
-    let [date, formId, nid] = parts.slice(typeIndex + 1, typeIndex + 4);
+    let [type, date, formId, nid] = parts;
 
     // Validate Date
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(Date.parse(date))) {
@@ -27,22 +29,19 @@ exports.handler = async (event) => {
     if (!/^\d{1,4}$/.test(nid)) {
         return { statusCode: 400, body: JSON.stringify({ error: "Invalid NID format." }) };
     }
-
-    // Ensure Date is today
+    
     let today = new Date().toISOString().split("T")[0];
     if (date !== today) {
         return { statusCode: 400, body: JSON.stringify({ error: "Date must be today's date." }) };
     }
 
-    // Expiration: Links expire in 3 days
     let expirationLimit = new Date(date);
     expirationLimit.setDate(expirationLimit.getDate() + 3);
     if (new Date() > expirationLimit) {
         return { statusCode: 400, body: JSON.stringify({ error: "The link has expired." }) };
     }
 
-    // Determine the target URL (Tally or Notion)
-    let sourceType = parts[typeIndex] === "t" ? "tally.so" : "notion.so";
+    let sourceType = KV[type];
     let queryLink = `https://${sourceType}/${formId}?NID=${encodeURIComponent(nid)}`;
 
     return {
