@@ -5,14 +5,14 @@ exports.handler = async (event) => {
     const KV = { 't': 'tally.so/r/', 'n': 'notion.so' };
 
     if (parts.length < 4 || !(parts[0] in KV)) {
-        return { statusCode: 400, body: JSON.stringify({ error: "Invalid URL format. Use /t/YYYY-MM-DD/formID/NID or /n/YYYY-MM-DD/formID/NID" }) };
+        return { statusCode: 400, body: JSON.stringify({ error: "Invalid URL format. Use /t/YYYY-M-D/formID/NID or /n/YYYY-M-D/formID/NID" }) };
     }
 
     let [type, date, formId, nid] = parts;
 
     // Validate date allowing both YYYY-MM-DD and YYYY-M-D formats
     if (!/^\d{4}-\d{1,2}-\d{1,2}$/.test(date)) {
-        return { statusCode: 400, body: JSON.stringify({ error: "Invalid date format. Use YYYY-MM-DD or YYYY-M-D." }) };
+        return { statusCode: 400, body: JSON.stringify({ error: "Invalid date format. Use YYYY-M-D or YYYY-MM-DD." }) };
     }
 
     let [year, month, day] = date.split("-").map(Number);
@@ -51,8 +51,11 @@ exports.handler = async (event) => {
         return { statusCode: 400, body: JSON.stringify({ error: "Invalid type. Use 't' for Tally or 'n' for Notion." }) };
     }
 
-    // Construct the redirect URL
-    let queryLink = `https://${sourceType}/${formId}?NID=${encodeURIComponent(nid)}`;
+    // Ensure the date is in YYYY-M-D format
+    let formattedDate = `${year}-${month}-${day}`;
+
+    // Construct the redirect URL with the corrected date format
+    let queryLink = `https://${sourceType}/${formId}?date=${formattedDate}&NID=${encodeURIComponent(nid)}`;
 
     return {
         statusCode: 301,
