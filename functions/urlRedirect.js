@@ -3,7 +3,7 @@ exports.handler = async (event) => {
     let parts = path.split("/").filter(Boolean);
 
     // KV Mapping for Redirection
-    const KV = { 't': 'tally.so', 'n': 'notion.so' };
+    const KV = { 't': 'tally.so/r/', 'n': 'notion.so' };
 
     // Step 1: Check for a valid structure
     if (parts.length < 4 || !(parts[0] in KV)) {
@@ -32,14 +32,14 @@ exports.handler = async (event) => {
         return { statusCode: 400, body: JSON.stringify({ error: "Date must be today's date." }) };
     }
 
-    // Step 6: Expiration: Links expire in 3 days
+    
     let expirationLimit = new Date(date);
     expirationLimit.setDate(expirationLimit.getDate() + 3);
     if (new Date() > expirationLimit) {
         return { statusCode: 400, body: JSON.stringify({ error: "The link has expired." }) };
     }
 
-    // Step 7: Redirect to the Correct Source (Tally or Notion)
+    
     let sourceType = KV[type];
     if (!sourceType) {
         return { statusCode: 400, body: JSON.stringify({ error: "Invalid type. Use 't' for Tally or 'n' for Notion." }) };
