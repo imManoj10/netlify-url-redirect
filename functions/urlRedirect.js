@@ -10,15 +10,16 @@ exports.handler = async (event) => {
 
     let [type, date, formId, nid] = parts;
 
-    // Validate date allowing both YYYY-MM-DD and YYYY-M-D formats
+    // Validate date allowing "YYYY-M-D" format
     if (!/^\d{4}-\d{1,2}-\d{1,2}$/.test(date)) {
-        return { statusCode: 400, body: JSON.stringify({ error: "Invalid date format. Use YYYY-M-D or YYYY-MM-DD." }) };
+        return { statusCode: 400, body: JSON.stringify({ error: "Invalid date format. Use YYYY-M-D (no leading zeros)." }) };
     }
 
+    // Convert date from string to numerical format
     let [year, month, day] = date.split("-").map(Number);
     let urlDate = new Date(year, month - 1, day); // Convert extracted date to JS Date object
 
-    // Check if date is valid
+    // Ensure the date is valid
     if (isNaN(urlDate.getTime()) || urlDate.getFullYear() !== year || urlDate.getMonth() + 1 !== month || urlDate.getDate() !== day) {
         return { statusCode: 400, body: JSON.stringify({ error: "Invalid date provided." }) };
     }
@@ -51,11 +52,13 @@ exports.handler = async (event) => {
         return { statusCode: 400, body: JSON.stringify({ error: "Invalid type. Use 't' for Tally or 'n' for Notion." }) };
     }
 
-    // Ensure the date is in YYYY-M-D format
-    let formattedDate = `${year}-${month}-${day}`;
+    // Convert Date Back to YYYY-M-D (Ensure no leading zeros)
+    let formattedDate = `${year}-${month}-${day}`; // Natural numeric format
 
-    // Construct the redirect URL with the corrected date format
-    let queryLink = `https://${sourceType}/${formId}?date=${formattedDate}&NID=${encodeURIComponent(nid)}`;
+    console.log("Processed Date (YYYY-M-D):", formattedDate); // Debug log for verification
+
+    // Construct the redirect URL WITHOUT the date in the query
+    let queryLink = `https://${sourceType}/${formId}?NID=${encodeURIComponent(nid)}`;
 
     return {
         statusCode: 301,
