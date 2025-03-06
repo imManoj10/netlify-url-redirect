@@ -1,5 +1,5 @@
 exports.handler = async (event) => {
-    let path = event.path.replace("/.netlify/functions/urlRedirect", "").toLowerCase(); // Ensure lowercase
+    let path = event.path.replace("/.netlify/functions/urlRedirect", ""); // Ensure lowercase
     let parts = path.split("/").filter(Boolean);
 
     const KV = { 't': 'tally.so/r/', 'n': 'notion.so' };
@@ -54,7 +54,7 @@ exports.handler = async (event) => {
     // Construct the redirect URL
     let queryLink = `https://${sourceType}/${formId}?NID=${encodeURIComponent(nid)}`;
 
-    return {
+    return {htp
         statusCode: 301,
         headers: { Location: queryLink }
     };
