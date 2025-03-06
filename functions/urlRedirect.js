@@ -1,5 +1,5 @@
 exports.handler = async (event) => {
-    let path = event.path.replace("/.netlify/functions/urlRedirect",); // Ensure lowercase
+    let path = event.path.replace("/.netlify/functions/urlRedirect", ""); 
     let parts = path.split("/").filter(Boolean);
 
     const KV = { 't': 'tally.so/r/', 'n': 'notion.so' };
